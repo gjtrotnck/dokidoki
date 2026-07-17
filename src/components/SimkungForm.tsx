@@ -15,6 +15,9 @@ export default function SimkungForm({
   const [allCharacters, setAllCharacters] = useState<any[]>(() => {
     const sanitizeCharacteristics = (list: any[]) => {
       return list.map((c: any) => {
+        if (c.id === 'sihoo') {
+          return { ...c, hair: '갈발', age: 18 };
+        }
         if (c.id === 'kanghan' && c.characteristics) {
           const updated = c.characteristics.map((char: string) => {
             if (char.includes('매일 훈련에 매지는 습관 있음') || char.includes('훈련에 매지는 습관') || char.includes('훈련에 매지는 습관 있음')) {
@@ -28,12 +31,21 @@ export default function SimkungForm({
       });
     };
 
+    const savedV8 = localStorage.getItem('simkung_characters_v8');
+    if (savedV8) {
+      try {
+        return sanitizeCharacteristics(JSON.parse(savedV8));
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
     const savedV7 = localStorage.getItem('simkung_characters_v7');
     if (savedV7) {
       try {
         const parsed = JSON.parse(savedV7);
         const sanitized = sanitizeCharacteristics(parsed);
-        localStorage.setItem('simkung_characters_v7', JSON.stringify(sanitized));
+        localStorage.setItem('simkung_characters_v8', JSON.stringify(sanitized));
         return sanitized;
       } catch (e) {
         console.error(e);
@@ -42,7 +54,10 @@ export default function SimkungForm({
     const savedV6 = localStorage.getItem('simkung_characters_v6');
     if (savedV6) {
       try {
-        return sanitizeCharacteristics(JSON.parse(savedV6));
+        const parsed = JSON.parse(savedV6);
+        const sanitized = sanitizeCharacteristics(parsed);
+        localStorage.setItem('simkung_characters_v8', JSON.stringify(sanitized));
+        return sanitized;
       } catch (e) {
         console.error(e);
       }
@@ -50,7 +65,10 @@ export default function SimkungForm({
     const savedV5 = localStorage.getItem('simkung_characters_v5');
     if (savedV5) {
       try {
-        return sanitizeCharacteristics(JSON.parse(savedV5));
+        const parsed = JSON.parse(savedV5);
+        const sanitized = sanitizeCharacteristics(parsed);
+        localStorage.setItem('simkung_characters_v8', JSON.stringify(sanitized));
+        return sanitized;
       } catch (e) {
         console.error(e);
       }
@@ -64,6 +82,9 @@ export default function SimkungForm({
   useEffect(() => {
     const sanitizeCharacteristics = (list: any[]) => {
       return list.map((c: any) => {
+        if (c.id === 'sihoo') {
+          return { ...c, hair: '갈발', age: 18 };
+        }
         if (c.id === 'kanghan' && c.characteristics) {
           const updated = c.characteristics.map((char: string) => {
             if (char.includes('매일 훈련에 매지는 습관 있음') || char.includes('훈련에 매지는 습관') || char.includes('훈련에 매지는 습관 있음')) {
@@ -77,27 +98,43 @@ export default function SimkungForm({
       });
     };
 
+    const savedV8 = localStorage.getItem('simkung_characters_v8');
+    if (savedV8) {
+      try {
+        const parsed = JSON.parse(savedV8);
+        const sanitized = sanitizeCharacteristics(parsed);
+        setAllCharacters(sanitized);
+        return;
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
     const savedV7 = localStorage.getItem('simkung_characters_v7');
     if (savedV7) {
       try {
         const parsed = JSON.parse(savedV7);
         const sanitized = sanitizeCharacteristics(parsed);
         setAllCharacters(sanitized);
+        return;
       } catch (e) {
         console.error(e);
       }
-    } else {
-      const savedV6 = localStorage.getItem('simkung_characters_v6');
-      if (savedV6) {
-        try {
-          const parsed = JSON.parse(savedV6);
-          const sanitized = sanitizeCharacteristics(parsed);
-          setAllCharacters(sanitized);
-        } catch (e) {
-          console.error(e);
-        }
+    }
+
+    const savedV6 = localStorage.getItem('simkung_characters_v6');
+    if (savedV6) {
+      try {
+        const parsed = JSON.parse(savedV6);
+        const sanitized = sanitizeCharacteristics(parsed);
+        setAllCharacters(sanitized);
+        return;
+      } catch (e) {
+        console.error(e);
       }
     }
+
+    setAllCharacters(sanitizeCharacteristics(characters));
   }, []);
   
   // 24-hour rotating encouraging quotes
@@ -114,9 +151,10 @@ export default function SimkungForm({
     "오늘이 너와 그 사람의 특별한 1일이 되는\n시작점일지도 몰라. 용기 내어 전송 버튼을 눌러봐!"
   ];
 
-  // Calculate 24-hour rotating index based on the day (using local time day boundary)
-  const daysSinceEpoch = Math.floor(Date.now() / (1000 * 60 * 60 * 24));
-  const encouragingQuote = quotes[daysSinceEpoch % quotes.length];
+  // 1시간마다 랜덤하게 변경되는 응원 메시지 (시간 값을 해시하여 유사 랜덤 분배)
+  const hoursSinceEpoch = Math.floor(Date.now() / (1000 * 60 * 60));
+  const pseudoRandomIndex = (hoursSinceEpoch * 17 + 11) % quotes.length;
+  const encouragingQuote = quotes[pseudoRandomIndex];
 
   // States for the submission flow
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -230,7 +268,6 @@ export default function SimkungForm({
 
           if (cleanCrushPhone === '01036288296') {
             const targetId = 'kanghan';
-            const target = allCharacters.find(c => c.id === targetId);
             const newRecord: ConfessionRecord = {
               id: Math.random().toString(36).substring(2, 9),
               senderNumber: myPhone,
@@ -240,13 +277,9 @@ export default function SimkungForm({
               timestamp: new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }),
             };
             onAddConfession(newRecord);
-            setConfessedName(target ? target.name : '권강한');
-            setReactionMsg(
-              `[권강한의 문자 답장 & 반응]\n\n얼굴이 새빨개진 채로 유도부 매트에 도복을 패대기치며... "너... 미쳤냐? 이런 해킹 사이트 장난은 대체 왜 치는 건데... 하, 진짜..." 하면서도 침을 꿀꺽 삼킵니다. 겉으로는 짜증을 내지만, 당신에게서 시선을 피한 그의 귀가 당장이라도 터질 것처럼 붉어져 있습니다.\n\n"나중에 운동장 뒤로 와라. 할 말 있으니까."`
-            );
+            onSelectCharacter(targetId);
           } else if (cleanCrushPhone === '01021973370') {
             const targetId = 'sihoo';
-            const target = allCharacters.find(c => c.id === targetId);
             const newRecord: ConfessionRecord = {
               id: Math.random().toString(36).substring(2, 9),
               senderNumber: myPhone,
@@ -256,10 +289,7 @@ export default function SimkungForm({
               timestamp: new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }),
             };
             onAddConfession(newRecord);
-            setConfessedName(target ? target.name : '정시후');
-            setReactionMsg(
-              `[정시후의 문자 답장 & 반응]\n\n단정한 학생회장실 안에서 핸드폰 액정을 물끄러미 바라보다, 부드럽게 입꼬리를 끌어올리며 눈웃음을 짓습니다.\n\n"나한테 보낸 문자, 아주 흥미롭게 잘 읽었어 ⓤ야. 근데... 이런 풋풋한 번호 궁합 사이트 장난은 다른 애한테도 친 거야? 설마 강한이라거나... 나 하나로 만족해야지, 안 그래? 내일 아침 선도부 검사 때 제대로 얘기 나누자."`
-            );
+            onSelectCharacter(targetId);
           } else {
             setShowRecipientModal(true);
           }
@@ -283,19 +313,8 @@ export default function SimkungForm({
     };
 
     onAddConfession(newRecord);
-    setConfessedName(target.name);
     setShowRecipientModal(false);
-
-    // Custom reaction script based on characters' personalities
-    if (targetId === 'kanghan') {
-      setReactionMsg(
-        `[권강한의 문자 답장 & 반응]\n\n얼굴이 새빨개진 채로 유도부 매트에 도복을 패대기치며... "너... 미쳤냐? 이런 해킹 사이트 장난은 대체 왜 치는 건데... 하, 진짜..." 하면서도 침을 꿀꺽 삼킵니다. 겉으로는 짜증을 내지만, 당신에게서 시선을 피한 그의 귀가 당장이라도 터질 것처럼 붉어져 있습니다.\n\n"나중에 운동장 뒤로 와라. 할 말 있으니까."`
-      );
-    } else {
-      setReactionMsg(
-        `[정시후의 문자 답장 & 반응]\n\n단정한 학생회장실 안에서 핸드폰 액정을 물끄러미 바라보다, 부드럽게 입꼬리를 끌어올리며 눈웃음을 짓습니다.\n\n"나한테 보낸 문자, 아주 흥미롭게 잘 읽었어 ⓤ야. 근데... 이런 풋풋한 번호 궁합 사이트 장난은 다른 애한테도 친 거야? 설마 강한이라거나... 나 하나로 만족해야지, 안 그래? 내일 아침 선도부 검사 때 제대로 얘기 나누자."`
-      );
-    }
+    onSelectCharacter(targetId);
   };
 
   const handleReset = () => {
@@ -329,7 +348,7 @@ export default function SimkungForm({
         </div>
       </div>
 
-      {/* 24-Hour Rotating Encouraging Quote banner */}
+      {/* 1시간마다 변경되는 응원 메시지 배너 */}
       <div className="mb-6 md:mb-8 p-5 md:p-6 rounded-3xl bg-white/40 backdrop-blur-2xl border border-white/60 flex flex-col items-center text-center gap-2 shadow-xl shadow-pink-200/20">
         <div className="space-y-2 flex flex-col items-center">
           <span className="text-sm md:text-base text-pink-500 font-extrabold tracking-wider flex items-center justify-center gap-1.5 uppercase font-sunflower">

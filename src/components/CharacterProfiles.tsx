@@ -15,92 +15,46 @@ interface CharacterProfilesProps {
 
 export default function CharacterProfiles({ selectedId, onSelectCharacter }: CharacterProfilesProps) {
   const [allCharacters, setAllCharacters] = useState<Character[]>(() => {
-    const ensureNewImages = (list: Character[]) => {
+    const sanitizeCharacters = (list: Character[]) => {
       return list.map((c: Character) => {
-        if (c.id === 'kanghan') {
-          return {
-            ...c,
-            imagePath: 'https://i.postimg.cc/G2nrg1gH/from-Pix-AI-2034149918937036432-1.png',
-            secretPersonality: ['의존적', '불안정 애착형']
-          };
-        }
         if (c.id === 'sihoo') {
-          return {
-            ...c,
-            imagePath: 'https://i.postimg.cc/c4kWy3kj/from-Pix-AI-2034149625405942310-1.png'
-          };
+          return { ...c, hair: '갈발', age: 18 };
         }
         return c;
       });
     };
 
-    const sanitizeCharacteristics = (list: Character[]) => {
-      return list.map((c: Character) => {
-        if (c.id === 'kanghan' && c.characteristics) {
-          const updated = c.characteristics.map(char => {
-            if (char.includes('매일 훈련에 매지는 습관 있음') || char.includes('훈련에 매지는 습관') || char.includes('훈련에 매지는 습관 있음')) {
-              return '훈련에 매진하는 습관 있음';
-            }
-            return char;
-          });
-          return { ...c, characteristics: updated };
+    // 1. First, check the most secure, stable key 'simkung_characters_v8'
+    const savedV8 = localStorage.getItem('simkung_characters_v8');
+    if (savedV8) {
+      try {
+        return sanitizeCharacters(JSON.parse(savedV8));
+      } catch (e) {
+        console.error('Failed to parse simkung_characters_v8', e);
+      }
+    }
+
+    // 2. Fallback to older versions if they somehow survived (just in case)
+    const keys = ['simkung_characters_v7', 'simkung_characters_v6', 'simkung_characters_v5', 'simkung_characters_v4'];
+    for (const key of keys) {
+      const saved = localStorage.getItem(key);
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          const sanitized = sanitizeCharacters(parsed);
+          localStorage.setItem('simkung_characters_v8', JSON.stringify(sanitized));
+          return sanitized;
+        } catch (e) {
+          console.error(`Failed to parse ${key}`, e);
         }
-        return c;
-      });
-    };
-
-    // 1. Check v7
-    const savedV7 = localStorage.getItem('simkung_characters_v7');
-    if (savedV7) {
-      try {
-        const parsed = JSON.parse(savedV7);
-        const sanitized = sanitizeCharacteristics(parsed);
-        localStorage.setItem('simkung_characters_v7', JSON.stringify(sanitized));
-        return sanitized;
-      } catch (e) {
-        console.error(e);
       }
     }
 
-    // 2. Check older v6 and migrate if possible
-    const savedV6 = localStorage.getItem('simkung_characters_v6');
-    if (savedV6) {
-      try {
-        const parsed = JSON.parse(savedV6);
-        const updated = sanitizeCharacteristics(ensureNewImages(parsed));
-        localStorage.setItem('simkung_characters_v7', JSON.stringify(updated));
-        localStorage.removeItem('simkung_characters_v6');
-        localStorage.removeItem('simkung_characters_v5');
-        localStorage.removeItem('simkung_characters_v4');
-        return updated;
-      } catch (e) {
-        console.error(e);
-      }
-    }
-
-    // 3. Check older v5
-    const savedV5 = localStorage.getItem('simkung_characters_v5');
-    if (savedV5) {
-      try {
-        const parsed = JSON.parse(savedV5);
-        const updated = sanitizeCharacteristics(ensureNewImages(parsed));
-        localStorage.setItem('simkung_characters_v7', JSON.stringify(updated));
-        localStorage.removeItem('simkung_characters_v5');
-        localStorage.removeItem('simkung_characters_v4');
-        return updated;
-      } catch (e) {
-        console.error(e);
-      }
-    }
-
-    // Default: return hardcoded characters but save them to v7
-    const defaultSanitized = sanitizeCharacteristics(characters);
-    localStorage.setItem('simkung_characters_v7', JSON.stringify(defaultSanitized));
-    return defaultSanitized;
+    // 3. Absolute fallback to hardcoded default data from data.ts
+    const defaultData = sanitizeCharacters(JSON.parse(JSON.stringify(characters)));
+    localStorage.setItem('simkung_characters_v8', JSON.stringify(defaultData));
+    return defaultData;
   });
-
-  const [isEditing, setIsEditing] = useState(false);
-  const [editForm, setEditForm] = useState<Character | null>(null);
 
   const [unlockedInner, setUnlockedInner] = useState<{ [key: string]: boolean }>({
     kanghan: false,
@@ -115,188 +69,7 @@ export default function CharacterProfiles({ selectedId, onSelectCharacter }: Cha
   const currentCharacter = allCharacters.find(c => c.id === selectedId) || allCharacters[0];
   
   const handleCharacterSelect = (id: 'kanghan' | 'sihoo') => {
-    if (isEditing) {
-      if (window.confirm('작성 중인 변경 사항이 유실됩니다. 캐릭터를 전환하시겠습니까?')) {
-        setIsEditing(false);
-        setEditForm(null);
-        onSelectCharacter(id);
-      }
-    } else {
-      onSelectCharacter(id);
-    }
-  };
-
-  const startEditing = () => {
-    setEditForm(JSON.parse(JSON.stringify(currentCharacter))); // deep clone
-    setIsEditing(true);
-  };
-
-  const saveChanges = () => {
-    if (!editForm) return;
-    const updated = allCharacters.map(c => c.id === editForm.id ? editForm : c);
-    setAllCharacters(updated);
-    localStorage.setItem('simkung_characters_v7', JSON.stringify(updated));
-    setIsEditing(false);
-    setEditForm(null);
-  };
-
-  const cancelChanges = () => {
-    setIsEditing(false);
-    setEditForm(null);
-  };
-
-  const resetToDefault = () => {
-    if (window.confirm('모든 인물 정보를 원래 기본값으로 복원하시겠습니까?')) {
-      localStorage.removeItem('simkung_characters_v7');
-      localStorage.removeItem('simkung_characters_v6');
-      localStorage.removeItem('simkung_characters_v5');
-      localStorage.removeItem('simkung_characters_v4');
-      const reset = JSON.parse(JSON.stringify(characters));
-      setAllCharacters(reset);
-      setIsEditing(false);
-      setEditForm(null);
-    }
-  };
-
-  const renderArrayField = (
-    label: string, 
-    items: string[], 
-    onChange: (newItems: string[]) => void
-  ) => {
-    return (
-      <div className="space-y-2">
-        <label className="block text-xs font-black text-slate-500 uppercase tracking-wider font-sans">{label}</label>
-        <div className="space-y-2">
-          {items.map((item, idx) => (
-            <div key={idx} className="flex gap-2">
-              <input
-                type="text"
-                value={item}
-                onChange={(e) => {
-                  const updated = [...items];
-                  updated[idx] = e.target.value;
-                  onChange(updated);
-                }}
-                className="flex-1 bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs focus:ring-2 ring-pink-100 outline-none transition text-slate-850"
-              />
-              <button
-                type="button"
-                onClick={() => {
-                  const updated = items.filter((_, i) => i !== idx);
-                  onChange(updated);
-                }}
-                className="px-2 py-1 bg-rose-50 text-rose-500 rounded-xl hover:bg-rose-100 text-xs font-bold transition shrink-0 cursor-pointer"
-              >
-                삭제
-              </button>
-            </div>
-          ))}
-        </div>
-        <button
-          type="button"
-          onClick={() => onChange([...items, ''])}
-          className="w-full py-2 bg-white/60 border border-dashed border-slate-200 text-slate-500 rounded-xl hover:bg-slate-50 text-xs font-bold transition cursor-pointer"
-        >
-          + 항목 추가
-        </button>
-      </div>
-    );
-  };
-
-  const renderPastTimelineField = (
-    past: CharacterPast[],
-    onChange: (newPast: CharacterPast[]) => void
-  ) => {
-    return (
-      <div className="space-y-4">
-        <div className="space-y-4">
-          {past.map((item, idx) => (
-            <div key={idx} className="p-4 bg-white/55 border border-slate-150 rounded-2xl space-y-3 relative shadow-xs">
-              <div className="flex justify-between items-center">
-                <span className="text-[11px] font-extrabold text-slate-400">사건 #{idx + 1}</span>
-                <button
-                  type="button"
-                  onClick={() => {
-                    const updated = past.filter((_, i) => i !== idx);
-                    onChange(updated);
-                  }}
-                  className="px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-500 text-xs font-bold rounded-xl transition cursor-pointer"
-                >
-                  삭제
-                </button>
-              </div>
-              
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div>
-                  <label className="block text-[10px] text-slate-400 font-bold mb-1">나이</label>
-                  <input
-                    type="number"
-                    value={item.age}
-                    onChange={(e) => {
-                      const updated = [...past];
-                      updated[idx] = { ...item, age: parseInt(e.target.value) || 0 };
-                      onChange(updated);
-                    }}
-                    className="w-full bg-white border border-slate-200 rounded-xl px-3 py-1.5 text-xs focus:ring-2 ring-pink-100 outline-none transition text-slate-850"
-                  />
-                </div>
-                <div className="sm:col-span-2">
-                  <label className="block text-[10px] text-slate-400 font-bold mb-1">사건 제목</label>
-                  <input
-                    type="text"
-                    value={item.title}
-                    onChange={(e) => {
-                      const updated = [...past];
-                      updated[idx] = { ...item, title: e.target.value };
-                      onChange(updated);
-                    }}
-                    className="w-full bg-white border border-slate-200 rounded-xl px-3 py-1.5 text-xs focus:ring-2 ring-pink-100 outline-none transition text-slate-850"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-[10px] text-slate-400 font-bold mb-1">상세 사건 내용</label>
-                <textarea
-                  value={item.event}
-                  onChange={(e) => {
-                    const updated = [...past];
-                    updated[idx] = { ...item, event: e.target.value };
-                    onChange(updated);
-                  }}
-                  rows={2}
-                  className="w-full bg-white border border-slate-200 rounded-xl px-3 py-1.5 text-xs focus:ring-2 ring-pink-100 outline-none transition resize-none text-slate-850"
-                />
-              </div>
-
-              <div className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  id={`isSecret-${idx}`}
-                  checked={item.isSecret}
-                  onChange={(e) => {
-                    const updated = [...past];
-                    updated[idx] = { ...item, isSecret: e.target.checked };
-                    onChange(updated);
-                  }}
-                  className="w-3.5 h-3.5 text-pink-500 border-slate-300 rounded focus:ring-pink-500"
-                />
-                <label htmlFor={`isSecret-${idx}`} className="text-xs text-slate-600 font-semibold cursor-pointer select-none">
-                  🔒 비공개 과거 (비밀 잠금해제 시에만 공개)
-                </label>
-              </div>
-            </div>
-          ))}
-        </div>
-        <button
-          type="button"
-          onClick={() => onChange([...past, { age: 17, title: '', event: '', isSecret: false }])}
-          className="w-full py-2.5 bg-white/60 border border-dashed border-slate-200 text-slate-500 rounded-xl hover:bg-slate-50 text-xs font-bold transition cursor-pointer"
-        >
-          + 새로운 사건 추가
-        </button>
-      </div>
-    );
+    onSelectCharacter(id);
   };
 
   return (

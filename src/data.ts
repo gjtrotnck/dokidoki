@@ -93,12 +93,12 @@ export const characters: Character[] = [
   {
     id: 'sihoo',
     name: '정시후',
-    age: 19,
+    age: 18,
     gender: '남자',
     classInfo: '청월고등학교 3학년 2반',
     specialty: '학생회장',
     height: 187,
-    hair: '브라운 헤어',
+    hair: '갈발',
     eyes: '녹안',
     uniqueFeatures: [
       '상냥하게 휘어지는 눈웃음',

@@ -10,7 +10,6 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<'simkung' | 'profiles' | 'places' | 'calendar'>('simkung');
   const [selectedCharId, setSelectedCharId] = useState<'kanghan' | 'sihoo'>('kanghan');
   const [confessions, setConfessions] = useState<ConfessionRecord[]>([]);
-  const [toast, setToast] = useState<string | null>(null);
 
   // Load confessions from localStorage on mount
   useEffect(() => {
@@ -24,16 +23,6 @@ export default function App() {
     }
   }, []);
 
-  // Auto-hide toast after 4 seconds
-  useEffect(() => {
-    if (toast) {
-      const timer = setTimeout(() => {
-        setToast(null);
-      }, 4000);
-      return () => clearTimeout(timer);
-    }
-  }, [toast]);
-
   const handleAddConfession = (record: ConfessionRecord) => {
     const updated = [record, ...confessions];
     setConfessions(updated);
@@ -44,17 +33,10 @@ export default function App() {
       setSelectedCharId(record.targetId as 'kanghan' | 'sihoo');
     }
 
-    // Show toast after a short delay (1.5 seconds)
+    // Switch to profiles tab after a short realistic delay (1.0 second) without showing toast
     setTimeout(() => {
-      const messages = [
-        '두근두근, 상대방의 반응이 기대되네요!',
-        '마음이 무사히 전달되었기를! 그의 반응을 확인해볼까요?',
-        '설레는 마음을 담아 전송 완료! 이제 그의 대답을 들어보세요.',
-        '당신의 수줍은 고백이 그의 마음에 닿기를 바랄게요!'
-      ];
-      const randomIndex = Math.floor(Math.random() * messages.length);
-      setToast(messages[randomIndex]);
-    }, 1500);
+      setActiveTab('profiles');
+    }, 1000);
   };
 
   const handleClearHistory = () => {
@@ -214,18 +196,6 @@ export default function App() {
 
         {activeTab === 'calendar' && <CalendarView />}
       </main>
-
-      {/* Toast Notification */}
-      {toast && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none p-4">
-          <div className="bg-gradient-to-r from-pink-500 via-rose-500 to-pink-600 text-white rounded-3xl py-5 px-7 shadow-2xl shadow-pink-500/40 flex items-center gap-3 border border-white/20 animate-slide-in-toast max-w-sm w-full text-center justify-center pointer-events-auto">
-            <Heart className="w-5 h-5 fill-white text-white animate-pulse shrink-0" />
-            <span className="text-sm sm:text-base font-extrabold tracking-tight font-sunflower">
-              {toast}
-            </span>
-          </div>
-        </div>
-      )}
 
       {/* Footer / Copyright - EXCLUDED from sunflower font */}
       <footer className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center py-8 text-[11px] text-slate-400 font-sans tracking-wider border-t border-slate-100/30 mt-16 pb-28 md:pb-12">
