@@ -4,19 +4,7 @@ import { places } from '../data';
 import { MapPin, School, ShieldAlert, Award, Home, Landmark, FileText, X } from 'lucide-react';
 
 export default function PlacesList() {
-  const [allPlaces] = useState<Place[]>(() => {
-    const savedV3 = localStorage.getItem('simkung_places_v3');
-    if (savedV3) {
-      try {
-        return JSON.parse(savedV3);
-      } catch (e) {
-        console.error(e);
-      }
-    }
-    const defaultData = places;
-    localStorage.setItem('simkung_places_v3', JSON.stringify(defaultData));
-    return defaultData;
-  });
+  const [allPlaces] = useState<Place[]>(places);
   const [activePlace, setActivePlace] = useState<Place | null>(null);
 
   // Map icons and colors to place ids for vibrant, distinct visuals

@@ -14,31 +14,7 @@ interface CharacterProfilesProps {
 }
 
 export default function CharacterProfiles({ selectedId, onSelectCharacter }: CharacterProfilesProps) {
-  const [allCharacters] = useState<Character[]>(() => {
-    const sanitize = (list: Character[]) => {
-      return list.map((c) => {
-        if (c.id === 'sihoo') {
-          return { ...c, age: 18, hair: '갈발' };
-        }
-        return c;
-      });
-    };
-
-    const savedV10 = localStorage.getItem('simkung_characters_v10');
-    if (savedV10) {
-      try {
-        const parsed = JSON.parse(savedV10);
-        const sanitized = sanitize(parsed);
-        localStorage.setItem('simkung_characters_v10', JSON.stringify(sanitized));
-        return sanitized;
-      } catch (e) {
-        console.error('Failed to parse simkung_characters_v10', e);
-      }
-    }
-    const defaultData = sanitize(JSON.parse(JSON.stringify(characters)));
-    localStorage.setItem('simkung_characters_v10', JSON.stringify(defaultData));
-    return defaultData;
-  });
+  const [allCharacters] = useState<Character[]>(characters);
 
   const [unlockedInner, setUnlockedInner] = useState<{ [key: string]: boolean }>({
     kanghan: false,

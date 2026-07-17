@@ -12,45 +12,10 @@ export default function SimkungForm({
   onSelectCharacter, 
   onAddConfession
 }: SimkungFormProps) {
-  const [allCharacters, setAllCharacters] = useState<any[]>(() => {
-    const sanitize = (list: any[]) => {
-      return list.map((c: any) => {
-        if (c.id === 'sihoo') {
-          return { ...c, age: 18, hair: '갈발' };
-        }
-        return c;
-      });
-    };
-
-    const savedV10 = localStorage.getItem('simkung_characters_v10');
-    if (savedV10) {
-      try {
-        return sanitize(JSON.parse(savedV10));
-      } catch (e) {
-        console.error(e);
-      }
-    }
-    return sanitize(characters);
-  });
+  const [allCharacters, setAllCharacters] = useState<any[]>(characters);
 
   useEffect(() => {
-    const sanitize = (list: any[]) => {
-      return list.map((c: any) => {
-        if (c.id === 'sihoo') {
-          return { ...c, age: 18, hair: '갈발' };
-        }
-        return c;
-      });
-    };
-
-    const savedV10 = localStorage.getItem('simkung_characters_v10');
-    if (savedV10) {
-      try {
-        setAllCharacters(sanitize(JSON.parse(savedV10)));
-      } catch (e) {
-        console.error(e);
-      }
-    }
+    setAllCharacters(characters);
   }, []);
 
   const [crushPhone, setCrushPhone] = useState('');
