@@ -186,7 +186,7 @@ export default function CharacterProfiles({ selectedId, onSelectCharacter }: Cha
                       onClick={() => setUnlockedInner(prev => ({ ...prev, [currentCharacter.id]: false }))}
                       className="text-[10px] text-blue-500 font-semibold bg-blue-50 px-2 py-0.5 rounded-full border border-blue-100 hover:bg-blue-100 transition cursor-pointer"
                     >
-                      🔒 다시 잠그기
+                      다시 잠그기
                     </button>
                   </h3>
                   <ul className="space-y-2.5 font-sans">
@@ -294,7 +294,7 @@ export default function CharacterProfiles({ selectedId, onSelectCharacter }: Cha
                     onClick={() => setUnlockedPast(prev => ({ ...prev, [currentCharacter.id]: false }))}
                     className="text-[10px] text-blue-500 font-semibold bg-blue-50 px-2 py-0.5 rounded-full border border-blue-100 hover:bg-blue-100 transition cursor-pointer"
                   >
-                    🔒 다시 잠그기
+                    다시 잠그기
                   </button>
                 </h3>
 
