@@ -5,15 +5,27 @@ import { MapPin, School, ShieldAlert, Award, Home, Landmark, FileText, X } from 
 
 export default function PlacesList() {
   const [allPlaces] = useState<Place[]>(() => {
-    const saved = localStorage.getItem('simkung_places_v1');
-    if (saved) {
+    const savedV2 = localStorage.getItem('simkung_places_v2');
+    if (savedV2) {
       try {
-        return JSON.parse(saved);
+        return JSON.parse(savedV2);
       } catch (e) {
         console.error(e);
       }
     }
-    return places;
+    const savedV1 = localStorage.getItem('simkung_places_v1');
+    if (savedV1) {
+      try {
+        const parsed = JSON.parse(savedV1);
+        localStorage.setItem('simkung_places_v2', JSON.stringify(parsed));
+        return parsed;
+      } catch (e) {
+        console.error(e);
+      }
+    }
+    const defaultData = places;
+    localStorage.setItem('simkung_places_v2', JSON.stringify(defaultData));
+    return defaultData;
   });
   const [activePlace, setActivePlace] = useState<Place | null>(null);
 

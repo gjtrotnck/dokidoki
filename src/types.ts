@@ -47,7 +47,7 @@ export interface Place {
   subTitle?: string;
   structure?: string[];
   details: string[];
-  imageDesc: string;
+  imageDesc?: string;
 }
 
 export interface CalendarEvent {

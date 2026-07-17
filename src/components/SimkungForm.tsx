@@ -13,129 +13,49 @@ export default function SimkungForm({
   onAddConfession
 }: SimkungFormProps) {
   const [allCharacters, setAllCharacters] = useState<any[]>(() => {
-    const sanitizeCharacteristics = (list: any[]) => {
+    const sanitize = (list: any[]) => {
       return list.map((c: any) => {
         if (c.id === 'sihoo') {
-          return { ...c, hair: '갈발', age: 18 };
-        }
-        if (c.id === 'kanghan' && c.characteristics) {
-          const updated = c.characteristics.map((char: string) => {
-            if (char.includes('매일 훈련에 매지는 습관 있음') || char.includes('훈련에 매지는 습관') || char.includes('훈련에 매지는 습관 있음')) {
-              return '훈련에 매진하는 습관 있음';
-            }
-            return char;
-          });
-          return { ...c, characteristics: updated };
+          return { ...c, age: 18, hair: '갈발' };
         }
         return c;
       });
     };
 
-    const savedV8 = localStorage.getItem('simkung_characters_v8');
-    if (savedV8) {
+    const savedV9 = localStorage.getItem('simkung_characters_v9');
+    if (savedV9) {
       try {
-        return sanitizeCharacteristics(JSON.parse(savedV8));
+        return sanitize(JSON.parse(savedV9));
       } catch (e) {
         console.error(e);
       }
     }
-
-    const savedV7 = localStorage.getItem('simkung_characters_v7');
-    if (savedV7) {
-      try {
-        const parsed = JSON.parse(savedV7);
-        const sanitized = sanitizeCharacteristics(parsed);
-        localStorage.setItem('simkung_characters_v8', JSON.stringify(sanitized));
-        return sanitized;
-      } catch (e) {
-        console.error(e);
-      }
-    }
-    const savedV6 = localStorage.getItem('simkung_characters_v6');
-    if (savedV6) {
-      try {
-        const parsed = JSON.parse(savedV6);
-        const sanitized = sanitizeCharacteristics(parsed);
-        localStorage.setItem('simkung_characters_v8', JSON.stringify(sanitized));
-        return sanitized;
-      } catch (e) {
-        console.error(e);
-      }
-    }
-    const savedV5 = localStorage.getItem('simkung_characters_v5');
-    if (savedV5) {
-      try {
-        const parsed = JSON.parse(savedV5);
-        const sanitized = sanitizeCharacteristics(parsed);
-        localStorage.setItem('simkung_characters_v8', JSON.stringify(sanitized));
-        return sanitized;
-      } catch (e) {
-        console.error(e);
-      }
-    }
-    return sanitizeCharacteristics(characters);
+    return sanitize(characters);
   });
+
+  useEffect(() => {
+    const sanitize = (list: any[]) => {
+      return list.map((c: any) => {
+        if (c.id === 'sihoo') {
+          return { ...c, age: 18, hair: '갈발' };
+        }
+        return c;
+      });
+    };
+
+    const savedV9 = localStorage.getItem('simkung_characters_v9');
+    if (savedV9) {
+      try {
+        setAllCharacters(sanitize(JSON.parse(savedV9)));
+      } catch (e) {
+        console.error(e);
+      }
+    }
+  }, []);
+
   const [crushPhone, setCrushPhone] = useState('');
   const [myPhone, setMyPhone] = useState('');
   const [message, setMessage] = useState('');
-
-  useEffect(() => {
-    const sanitizeCharacteristics = (list: any[]) => {
-      return list.map((c: any) => {
-        if (c.id === 'sihoo') {
-          return { ...c, hair: '갈발', age: 18 };
-        }
-        if (c.id === 'kanghan' && c.characteristics) {
-          const updated = c.characteristics.map((char: string) => {
-            if (char.includes('매일 훈련에 매지는 습관 있음') || char.includes('훈련에 매지는 습관') || char.includes('훈련에 매지는 습관 있음')) {
-              return '훈련에 매진하는 습관 있음';
-            }
-            return char;
-          });
-          return { ...c, characteristics: updated };
-        }
-        return c;
-      });
-    };
-
-    const savedV8 = localStorage.getItem('simkung_characters_v8');
-    if (savedV8) {
-      try {
-        const parsed = JSON.parse(savedV8);
-        const sanitized = sanitizeCharacteristics(parsed);
-        setAllCharacters(sanitized);
-        return;
-      } catch (e) {
-        console.error(e);
-      }
-    }
-
-    const savedV7 = localStorage.getItem('simkung_characters_v7');
-    if (savedV7) {
-      try {
-        const parsed = JSON.parse(savedV7);
-        const sanitized = sanitizeCharacteristics(parsed);
-        setAllCharacters(sanitized);
-        return;
-      } catch (e) {
-        console.error(e);
-      }
-    }
-
-    const savedV6 = localStorage.getItem('simkung_characters_v6');
-    if (savedV6) {
-      try {
-        const parsed = JSON.parse(savedV6);
-        const sanitized = sanitizeCharacteristics(parsed);
-        setAllCharacters(sanitized);
-        return;
-      } catch (e) {
-        console.error(e);
-      }
-    }
-
-    setAllCharacters(sanitizeCharacteristics(characters));
-  }, []);
   
   // 24-hour rotating encouraging quotes
   const quotes = [

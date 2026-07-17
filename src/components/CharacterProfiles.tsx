@@ -14,45 +14,43 @@ interface CharacterProfilesProps {
 }
 
 export default function CharacterProfiles({ selectedId, onSelectCharacter }: CharacterProfilesProps) {
-  const [allCharacters, setAllCharacters] = useState<Character[]>(() => {
-    const sanitizeCharacters = (list: Character[]) => {
-      return list.map((c: Character) => {
+  const [allCharacters] = useState<Character[]>(() => {
+    const sanitize = (list: Character[]) => {
+      return list.map((c) => {
         if (c.id === 'sihoo') {
-          return { ...c, hair: '갈발', age: 18 };
+          return { ...c, age: 18, hair: '갈발' };
         }
         return c;
       });
     };
 
-    // 1. First, check the most secure, stable key 'simkung_characters_v8'
-    const savedV8 = localStorage.getItem('simkung_characters_v8');
-    if (savedV8) {
+    const savedV9 = localStorage.getItem('simkung_characters_v9');
+    if (savedV9) {
       try {
-        return sanitizeCharacters(JSON.parse(savedV8));
+        const parsed = JSON.parse(savedV9);
+        const sanitized = sanitize(parsed);
+        localStorage.setItem('simkung_characters_v9', JSON.stringify(sanitized));
+        return sanitized;
       } catch (e) {
-        console.error('Failed to parse simkung_characters_v8', e);
+        console.error('Failed to parse simkung_characters_v9', e);
       }
     }
-
-    // 2. Fallback to older versions if they somehow survived (just in case)
-    const keys = ['simkung_characters_v7', 'simkung_characters_v6', 'simkung_characters_v5', 'simkung_characters_v4'];
+    const keys = ['simkung_characters_v8', 'simkung_characters_v7', 'simkung_characters_v6', 'simkung_characters_v5', 'simkung_characters_v4'];
     for (const key of keys) {
       const saved = localStorage.getItem(key);
       if (saved) {
         try {
           const parsed = JSON.parse(saved);
-          const sanitized = sanitizeCharacters(parsed);
-          localStorage.setItem('simkung_characters_v8', JSON.stringify(sanitized));
+          const sanitized = sanitize(parsed);
+          localStorage.setItem('simkung_characters_v9', JSON.stringify(sanitized));
           return sanitized;
         } catch (e) {
           console.error(`Failed to parse ${key}`, e);
         }
       }
     }
-
-    // 3. Absolute fallback to hardcoded default data from data.ts
-    const defaultData = sanitizeCharacters(JSON.parse(JSON.stringify(characters)));
-    localStorage.setItem('simkung_characters_v8', JSON.stringify(defaultData));
+    const defaultData = sanitize(JSON.parse(JSON.stringify(characters)));
+    localStorage.setItem('simkung_characters_v9', JSON.stringify(defaultData));
     return defaultData;
   });
 
