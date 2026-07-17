@@ -24,33 +24,19 @@ export default function CharacterProfiles({ selectedId, onSelectCharacter }: Cha
       });
     };
 
-    const savedV9 = localStorage.getItem('simkung_characters_v9');
-    if (savedV9) {
+    const savedV10 = localStorage.getItem('simkung_characters_v10');
+    if (savedV10) {
       try {
-        const parsed = JSON.parse(savedV9);
+        const parsed = JSON.parse(savedV10);
         const sanitized = sanitize(parsed);
-        localStorage.setItem('simkung_characters_v9', JSON.stringify(sanitized));
+        localStorage.setItem('simkung_characters_v10', JSON.stringify(sanitized));
         return sanitized;
       } catch (e) {
-        console.error('Failed to parse simkung_characters_v9', e);
-      }
-    }
-    const keys = ['simkung_characters_v8', 'simkung_characters_v7', 'simkung_characters_v6', 'simkung_characters_v5', 'simkung_characters_v4'];
-    for (const key of keys) {
-      const saved = localStorage.getItem(key);
-      if (saved) {
-        try {
-          const parsed = JSON.parse(saved);
-          const sanitized = sanitize(parsed);
-          localStorage.setItem('simkung_characters_v9', JSON.stringify(sanitized));
-          return sanitized;
-        } catch (e) {
-          console.error(`Failed to parse ${key}`, e);
-        }
+        console.error('Failed to parse simkung_characters_v10', e);
       }
     }
     const defaultData = sanitize(JSON.parse(JSON.stringify(characters)));
-    localStorage.setItem('simkung_characters_v9', JSON.stringify(defaultData));
+    localStorage.setItem('simkung_characters_v10', JSON.stringify(defaultData));
     return defaultData;
   });
 

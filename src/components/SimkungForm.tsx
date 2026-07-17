@@ -22,10 +22,10 @@ export default function SimkungForm({
       });
     };
 
-    const savedV9 = localStorage.getItem('simkung_characters_v9');
-    if (savedV9) {
+    const savedV10 = localStorage.getItem('simkung_characters_v10');
+    if (savedV10) {
       try {
-        return sanitize(JSON.parse(savedV9));
+        return sanitize(JSON.parse(savedV10));
       } catch (e) {
         console.error(e);
       }
@@ -43,10 +43,10 @@ export default function SimkungForm({
       });
     };
 
-    const savedV9 = localStorage.getItem('simkung_characters_v9');
-    if (savedV9) {
+    const savedV10 = localStorage.getItem('simkung_characters_v10');
+    if (savedV10) {
       try {
-        setAllCharacters(sanitize(JSON.parse(savedV9)));
+        setAllCharacters(sanitize(JSON.parse(savedV10)));
       } catch (e) {
         console.error(e);
       }

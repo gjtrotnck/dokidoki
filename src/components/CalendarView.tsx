@@ -13,23 +13,10 @@ export default function CalendarView() {
   const [selectedSeason, setSelectedSeason] = useState<SeasonType>('spring');
 
   const [allEvents] = useState<CalendarEventWithId[]>(() => {
-    const savedV2 = localStorage.getItem('simkung_calendar_v2');
-    if (savedV2) {
+    const savedV3 = localStorage.getItem('simkung_calendar_v3');
+    if (savedV3) {
       try {
-        const parsed = JSON.parse(savedV2);
-        return parsed.map((e: any, idx: number) => ({
-          ...e,
-          id: e.id || `evt-${idx}-${Math.random()}`
-        }));
-      } catch (e) {
-        console.error(e);
-      }
-    }
-    const savedV1 = localStorage.getItem('simkung_calendar_v1');
-    if (savedV1) {
-      try {
-        const parsed = JSON.parse(savedV1);
-        localStorage.setItem('simkung_calendar_v2', JSON.stringify(parsed));
+        const parsed = JSON.parse(savedV3);
         return parsed.map((e: any, idx: number) => ({
           ...e,
           id: e.id || `evt-${idx}-${Math.random()}`
@@ -42,7 +29,7 @@ export default function CalendarView() {
       ...e,
       id: `evt-${idx}`
     }));
-    localStorage.setItem('simkung_calendar_v2', JSON.stringify(defaultData));
+    localStorage.setItem('simkung_calendar_v3', JSON.stringify(defaultData));
     return defaultData;
   });
 
