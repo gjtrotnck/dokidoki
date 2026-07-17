@@ -1,0 +1,20 @@
+@import url('https://fonts.googleapis.com/css2?family=Jua&family=Sunflower:wght@500;700&family=Gowun+Batang:wght@400;700&family=Gowun+Dodum&family=Inter:wght@400;500;700;900&family=Space+Grotesk:wght@500;700;900&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Space Grotesk", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-jua: "Jua", sans-serif;
+  --font-sunflower: "Sunflower", sans-serif;
+  --font-gowun-batang: "Gowun Batang", serif;
+  --font-gowun-dodum: "Gowun Dodum", sans-serif;
+}
+
+@keyframes slide-in-toast {
+  0% { transform: translate3d(0, -20px, 0) scale(0.95); opacity: 0; }
+  100% { transform: translate3d(0, 0, 0) scale(1); opacity: 1; }
+}
+
+.animate-slide-in-toast {
+  animation: slide-in-toast 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1) forwards;
+}
+
