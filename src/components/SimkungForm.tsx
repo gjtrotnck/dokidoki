@@ -56,6 +56,11 @@ export default function SimkungForm({
 
   const formatPhoneNumber = (value: string) => {
     const num = value.replace(/\D/g, '');
+    if (num.startsWith('0000')) {
+      if (num.length <= 4) return num;
+      if (num.length <= 8) return `${num.slice(0, 4)}-${num.slice(4)}`;
+      return `${num.slice(0, 4)}-${num.slice(4, 8)}-${num.slice(8, 12)}`;
+    }
     if (num.length <= 3) return num;
     if (num.length <= 7) return `${num.slice(0, 3)}-${num.slice(3)}`;
     return `${num.slice(0, 3)}-${num.slice(3, 7)}-${num.slice(7, 11)}`;
@@ -68,7 +73,7 @@ export default function SimkungForm({
       if (!val.trim()) {
         setCrushPhoneError('상대 전화번호를 입력해 주세요!');
       } else if (val.replace(/\D/g, '').length < 10) {
-        setCrushPhoneError('올바른 전화번호 형식(010-XXXX-XXXX)이 아닙니다!');
+        setCrushPhoneError('올바른 전화번호 형식이 아닙니다!');
       } else {
         setCrushPhoneError('');
       }
@@ -82,7 +87,7 @@ export default function SimkungForm({
       if (!val.trim()) {
         setMyPhoneError('나의 전화번호를 입력해 주세요!');
       } else if (val.replace(/\D/g, '').length < 10) {
-        setMyPhoneError('올바른 전화번호 형식(010-YYYY-YYYY)이 아닙니다!');
+        setMyPhoneError('올바른 전화번호 형식이 아닙니다!');
       } else {
         setMyPhoneError('');
       }
@@ -111,7 +116,7 @@ export default function SimkungForm({
       setCrushPhoneError('상대 전화번호를 입력해 주세요!');
       isValid = false;
     } else if (crushPhone.replace(/\D/g, '').length < 10) {
-      setCrushPhoneError('올바른 전화번호 형식(010-XXXX-XXXX)이 아닙니다!');
+      setCrushPhoneError('올바른 전화번호 형식이 아닙니다!');
       isValid = false;
     } else {
       setCrushPhoneError('');
@@ -121,7 +126,7 @@ export default function SimkungForm({
       setMyPhoneError('나의 전화번호를 입력해 주세요!');
       isValid = false;
     } else if (myPhone.replace(/\D/g, '').length < 10) {
-      setMyPhoneError('올바른 전화번호 형식(010-YYYY-YYYY)이 아닙니다!');
+      setMyPhoneError('올바른 전화번호 형식이 아닙니다!');
       isValid = false;
     } else {
       setMyPhoneError('');
@@ -151,7 +156,7 @@ export default function SimkungForm({
         setTimeout(() => {
           setIsAnalyzing(false);
 
-          if (cleanCrushPhone === '01036288296') {
+          if (cleanCrushPhone === '000036288296' || cleanCrushPhone === '01036288296') {
             const targetId = 'kanghan';
             const newRecord: ConfessionRecord = {
               id: Math.random().toString(36).substring(2, 9),
@@ -163,7 +168,7 @@ export default function SimkungForm({
             };
             onAddConfession(newRecord);
             onSelectCharacter(targetId);
-          } else if (cleanCrushPhone === '01021973370') {
+          } else if (cleanCrushPhone === '000021973370' || cleanCrushPhone === '01021973370') {
             const targetId = 'sihoo';
             const newRecord: ConfessionRecord = {
               id: Math.random().toString(36).substring(2, 9),
@@ -294,8 +299,8 @@ export default function SimkungForm({
                     type="text"
                     value={crushPhone}
                     onChange={handleCrushPhoneChange}
-                    placeholder="010-XXXX-XXXX"
-                    maxLength={13}
+                    placeholder="0000-XXXX-XXXX"
+                    maxLength={14}
                     className="w-full bg-white/90 border-none rounded-2xl md:rounded-3xl px-4 py-3.5 md:px-6 md:py-5 text-base sm:text-lg md:text-xl font-mono shadow-inner focus:ring-4 ring-blue-100 outline-none transition-all text-center text-slate-800"
                   />
                   {crushPhoneError && (
@@ -315,8 +320,8 @@ export default function SimkungForm({
                     type="text"
                     value={myPhone}
                     onChange={handleMyPhoneChange}
-                    placeholder="010-YYYY-YYYY"
-                    maxLength={13}
+                    placeholder="0000-YYYY-YYYY"
+                    maxLength={14}
                     className="w-full bg-white/90 border-none rounded-2xl md:rounded-3xl px-4 py-3.5 md:px-6 md:py-5 text-base sm:text-lg md:text-xl font-mono shadow-inner focus:ring-4 ring-pink-100 outline-none transition-all text-center text-slate-800"
                   />
                   {myPhoneError && (
